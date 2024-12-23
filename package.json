@@ -11,9 +11,12 @@
         "start": "next start",
         "lint": "next lint --fix",
         "format": "prettier --write \"**/*.{ts,tsx,js,jsx,cjs,mjs,md,mdx}\"",
-        "db:generate": "dotenv -c pnpm drizzle-kit generate",
-        "db:migrate": "dotenv -c pnpm drizzle-kit migrate",
-        "db:studio": "dotenv -c pnpm drizzle-kit studio"
+        "db:generate": "dotenv -- drizzle-kit generate:pg",
+        "db:migrate": "dotenv -- drizzle-kit push:pg",
+        "db:studio": "dotenv -- drizzle-kit studio",
+        "db:reset": "dotenv -- tsx scripts/create-db.ts",
+        "db:setup": "pnpm db:reset && pnpm db:migrate && pnpm db:seed",
+        "db:seed": "dotenv -- tsx seeds/index.ts"
     },
     "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228",
     "dependencies": {
@@ -43,7 +46,6 @@
         "drizzle-orm": "^0.35.3",
         "hono": "4.6.7",
         "input-otp": "^1.2.4",
-        "lucia": "^3.2.2",
         "lucide-react": "^0.453.0",
         "next": "15.0.1",
         "next-themes": "^0.3.0",
@@ -58,6 +60,7 @@
         "server-only": "^0.0.1",
         "sonner": "^1.5.0",
         "tailwind-merge": "^2.5.4",
+        "uuid": "^11.0.3",
         "zod": "^3.23.8"
     },
     "devDependencies": {
@@ -89,6 +92,7 @@
         "tailwindcss": "^3.4.14",
         "tailwindcss-animate": "^1.0.7",
         "tailwindcss-debug-screens": "^2.2.1",
+        "tsx": "^4.7.1",
         "typescript": "^5.6.3"
     },
     "pnpm": {

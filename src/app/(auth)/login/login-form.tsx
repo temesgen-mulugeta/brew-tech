@@ -47,7 +47,7 @@ export function LoginForm() {
     const form = useForm<Login>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: '',
+            username: '',
             password: '',
         },
         criteriaMode: 'all',
@@ -58,14 +58,14 @@ export function LoginForm() {
             <form onSubmit={form.handleSubmit(values => mutate(values))} className='space-y-4'>
                 <FormField
                     control={form.control}
-                    name='email'
+                    name='username'
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
                                 <Input
-                                    autoComplete='email'
-                                    placeholder='hey@example.com'
+                                    autoComplete='username'
+                                    placeholder='root'
                                     {...field}
                                 />
                             </FormControl>

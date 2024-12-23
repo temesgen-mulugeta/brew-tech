@@ -32,7 +32,7 @@ export function ThemeToggle() {
     if (!themeValue) {
         return (
             <Button variant='ghost' size='sm' className='w-9 px-0'>
-                <MoonIcon className='size-5' />
+                <SunIcon className='size-5' />
             </Button>
         );
     }
@@ -84,7 +84,7 @@ export function ThemeToggleSidebar() {
     if (!themeValue) {
         return (
             <DropdownMenuSubTrigger>
-                <MoonIcon /> Toggle theme
+                <SunIcon /> Toggle theme
             </DropdownMenuSubTrigger>
         );
     }

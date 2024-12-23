@@ -1,3 +1,4 @@
+import { generateId } from '@/lib/utils';
 import { generateEmailVerificationCode, sendVerificationCode } from '@/lib/utils.server';
 import { sendRegistrationCodeSchema } from '@/schemas/auth';
 import type { ContextVariables } from '@/server/types';
@@ -5,7 +6,6 @@ import { users } from '@/services/db/schema';
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
-import { generateId } from 'lucia';
 
 export const sendRegistrationCode = new OpenAPIHono<{
     Variables: ContextVariables;
@@ -22,7 +22,7 @@ export const sendRegistrationCode = new OpenAPIHono<{
                     'application/json': {
                         schema: sendRegistrationCodeSchema.openapi('SendRegistrationCode', {
                             example: {
-                                email: 'hey@example.com',
+                                username: 'jhon_doe',
                                 agree: true,
                             },
                         }),
@@ -38,7 +38,7 @@ export const sendRegistrationCode = new OpenAPIHono<{
         },
     }),
     async c => {
-        const { agree, email } = c.req.valid('json');
+        const { agree, username } = c.req.valid('json');
         const db = c.get('db');
 
         if (!agree) {
@@ -47,10 +47,10 @@ export const sendRegistrationCode = new OpenAPIHono<{
             });
         }
 
-        const normalizedEmail = email.toUpperCase();
+        const normalizedUsername = username.toUpperCase();
 
         const existingUser = await db.query.users.findFirst({
-            where: eq(users.normalizedEmail, normalizedEmail),
+            where: eq(users.normalizedUsername, normalizedUsername),
         });
 
         if (existingUser && existingUser.emailVerified) {
@@ -59,13 +59,13 @@ export const sendRegistrationCode = new OpenAPIHono<{
 
         let id: string;
         if (!existingUser) {
-            id = generateId(15);
+            id = generateId();
             await db
                 .insert(users)
                 .values({
                     id,
-                    email: email,
-                    normalizedEmail,
+                    username,
+                    normalizedUsername,
                     agreedToTerms: agree,
                 })
                 .returning({ insertedUserId: users.id });
@@ -74,7 +74,7 @@ export const sendRegistrationCode = new OpenAPIHono<{
         }
 
         const code = await generateEmailVerificationCode(id);
-        const success = await sendVerificationCode(email, code);
+            const success = await sendVerificationCode(username, code);
 
         if (!success) {
             throw new HTTPException(500, {

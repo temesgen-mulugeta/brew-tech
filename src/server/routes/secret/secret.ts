@@ -15,7 +15,7 @@ export const secret = new OpenAPIHono<{ Variables: ContextVariables }>().openapi
                         schema: z
                             .object({
                                 message: z.string(),
-                                email: z.string().email(),
+                                username: z.string(),
                             })
                             .openapi('SecretResponse'),
                     },
@@ -28,7 +28,7 @@ export const secret = new OpenAPIHono<{ Variables: ContextVariables }>().openapi
 
         return c.json({
             message: 'Secret Message',
-            email: user.email,
+            username: user.username,
         });
     }
 );

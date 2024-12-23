@@ -30,12 +30,12 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-export function VerificationForm({ email }: { email: string }) {
+export function VerificationForm({ username }: { username: string }) {
     const form = useForm<Verify>({
         resolver: zodResolver(verifySchema),
         defaultValues: {
             confirmationCode: '',
-            email,
+            username: '',
             password: '',
         },
         criteriaMode: 'all',
@@ -98,7 +98,7 @@ export function VerificationForm({ email }: { email: string }) {
                 />
                 <FormField
                     control={form.control}
-                    name='email'
+                    name='username'
                     render={({ field }) => (
                         <FormItem>
                             <div className='space-y-2 leading-none'>

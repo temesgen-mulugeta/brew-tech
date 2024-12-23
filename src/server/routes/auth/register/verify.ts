@@ -1,7 +1,7 @@
 import { hashPassword } from '@/lib/utils.server';
 import { verifySchema } from '@/schemas/auth';
 import type { ContextVariables } from '@/server/types';
-import { lucia } from '@/services/auth';
+import { auth } from '@/services/auth';
 import { emailVerificationCodes, users } from '@/services/db/schema';
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { eq } from 'drizzle-orm';
@@ -24,7 +24,7 @@ export const verify = new OpenAPIHono<{
                     'application/json': {
                         schema: verifySchema.openapi('Verify', {
                             example: {
-                                email: 'hey@example.com',
+                                username: 'jhon_doe',
                                 confirmationCode: '42424242',
                                 password: '11eeb60bbef14eb5b8990c02cdb11851',
                             },
@@ -41,13 +41,13 @@ export const verify = new OpenAPIHono<{
         },
     }),
     async c => {
-        const { email, confirmationCode, password } = c.req.valid('json');
+        const { username, confirmationCode, password } = c.req.valid('json');
         const db = c.get('db');
 
-        const normalizedEmail = email.toUpperCase();
+        const normalizedUsername = username.toUpperCase();
 
         const existingUser = await db.query.users.findFirst({
-            where: eq(users.normalizedEmail, normalizedEmail),
+            where: eq(users.normalizedUsername, normalizedUsername),
             with: {
                 emailVerificationCodes: true,
             },
@@ -84,8 +84,8 @@ export const verify = new OpenAPIHono<{
             await ctx.delete(emailVerificationCodes).where(eq(emailVerificationCodes.id, code.id));
         });
 
-        const session = await lucia.createSession(existingUser.id, {});
-        const sessionCookie = lucia.createSessionCookie(session.id);
+        const session = await auth.createSession(existingUser.id);
+        const sessionCookie = auth.createSessionCookie(session.id);
         setCookie(c, sessionCookie.name, sessionCookie.value, {
             ...sessionCookie.attributes,
             sameSite: 'Strict',

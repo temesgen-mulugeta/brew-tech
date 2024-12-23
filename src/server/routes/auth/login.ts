@@ -2,7 +2,7 @@ import { Routes } from '@/lib/routes';
 import { verifyHash } from '@/lib/utils.server';
 import { loginSchema } from '@/schemas/auth';
 import type { ContextVariables } from '@/server/types';
-import { lucia } from '@/services/auth';
+import { auth } from '@/services/auth';
 import { users } from '@/services/db/schema';
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { and, eq } from 'drizzle-orm';
@@ -34,13 +34,16 @@ export const login = new OpenAPIHono<{ Variables: ContextVariables }>().openapi(
         },
     }),
     async c => {
-        const { email, password } = c.req.valid('json');
+        const { username, password } = c.req.valid('json');
         const db = c.get('db');
 
-        const normalizedEmail = email.toUpperCase();
+        const normalizedUsername = username.toUpperCase();
 
         const existingUser = await db.query.users.findFirst({
-            where: and(eq(users.normalizedEmail, normalizedEmail), eq(users.emailVerified, true)),
+            where: and(
+                eq(users.normalizedUsername, normalizedUsername),
+                eq(users.emailVerified, true)
+            ),
         });
 
         if (!existingUser) {
@@ -56,8 +59,8 @@ export const login = new OpenAPIHono<{ Variables: ContextVariables }>().openapi(
             });
         }
 
-        const session = await lucia.createSession(existingUser.id, {});
-        const sessionCookie = lucia.createSessionCookie(session.id);
+        const session = await auth.createSession(existingUser.id);
+        const sessionCookie = auth.createSessionCookie(session.id);
         setCookie(c, sessionCookie.name, sessionCookie.value, {
             ...sessionCookie.attributes,
             sameSite: 'Strict',

@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 export const sendRegistrationCodeSchema = z.object({
     agree: z.boolean(),
-    email: z.string().email(),
+    username: z.string(),
 });
 
 export type SendRegistrationCode = z.infer<typeof sendRegistrationCodeSchema>;
 
 export const verifySchema = z.object({
     confirmationCode: z.string(),
-    email: z.string().email(),
+    username: z.string(),
     password: z
         .string()
         .min(8, { message: 'Password must be at least 8 characters.' })
@@ -19,7 +19,7 @@ export const verifySchema = z.object({
 export type Verify = z.infer<typeof verifySchema>;
 
 export const loginSchema = z.object({
-    email: z.string().email(),
+    username: z.string(),
     password: z.string().min(1, { message: 'Password can not be empty.' }),
 });
 

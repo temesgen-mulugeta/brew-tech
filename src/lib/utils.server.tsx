@@ -3,7 +3,6 @@ import 'server-only';
 import ConfirmationCode from '@/emails/confirmation-code';
 import { serverEnvs } from '@/env/server';
 import { Routes } from '@/lib/routes';
-import { lucia } from '@/services/auth';
 import { db } from '@/services/db';
 import { emailVerificationCodes } from '@/services/db/schema';
 import { hash, verify } from '@node-rs/argon2';
@@ -17,12 +16,13 @@ import { createDate, isWithinExpirationDate, TimeSpan } from 'oslo';
 import { alphabet, generateRandomString } from 'oslo/crypto';
 import { cache } from 'react';
 import { Resend } from 'resend';
+import { auth } from '@/services/auth';
 
 export const getUser = cache(async () => {
-    const sessionId = (await cookies()).get(lucia.sessionCookieName)?.value;
+    const sessionId = (await cookies()).get(auth.sessionCookieName)?.value;
     if (!sessionId) return null;
 
-    const { user } = await lucia.validateSession(sessionId);
+    const { user } = await auth.validateSession(sessionId);
     return user;
 });
 

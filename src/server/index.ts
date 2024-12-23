@@ -5,7 +5,7 @@ import { getCookie, setCookie } from 'hono/cookie';
 import { authApp } from '@/server/routes/auth';
 import { secretApp } from '@/server/routes/secret';
 import type { ContextVariables } from '@/server/types';
-import { lucia } from '@/services/auth';
+import { auth } from '@/services/auth';
 import { db } from '@/services/db';
 
 const app = new OpenAPIHono<{ Variables: ContextVariables }>();
@@ -13,7 +13,7 @@ const app = new OpenAPIHono<{ Variables: ContextVariables }>();
 app.use(async (c, next) => {
     c.set('db', db);
 
-    const sessionId = getCookie(c, lucia.sessionCookieName);
+    const sessionId = getCookie(c, auth.sessionCookieName);
 
     if (!sessionId) {
         c.set('user', null);
@@ -21,19 +21,19 @@ app.use(async (c, next) => {
         return next();
     }
 
-    const { session, user } = await lucia.validateSession(sessionId);
+    const { session, user } = await auth.validateSession(sessionId);
 
     if (session && session.fresh) {
-        const sessionCookie = lucia.createSessionCookie(session.id);
-        setCookie(c, lucia.sessionCookieName, sessionCookie.serialize(), {
+        const sessionCookie = auth.createSessionCookie(session.id);
+        setCookie(c, sessionCookie.name, sessionCookie.value, {
             ...sessionCookie.attributes,
             sameSite: 'Strict',
         });
     }
 
     if (!session) {
-        const sessionCookie = lucia.createBlankSessionCookie();
-        setCookie(c, lucia.sessionCookieName, sessionCookie.serialize(), {
+        const sessionCookie = auth.createBlankSessionCookie();
+        setCookie(c, sessionCookie.name, sessionCookie.value, {
             ...sessionCookie.attributes,
             sameSite: 'Strict',
         });

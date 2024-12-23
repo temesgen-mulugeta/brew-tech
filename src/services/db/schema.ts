@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
 import {
     boolean,
+    pgEnum,
     pgTable,
     serial,
     text,
@@ -9,25 +10,57 @@ import {
     varchar,
 } from 'drizzle-orm/pg-core';
 
+export const userStatusEnum = pgEnum('user_status', [
+    'other',
+    'deleted',
+    'active',
+    'inactive',
+    'pending',
+    'banned',
+    'limited',
+]);
+
+export const roles = pgEnum('roles', [
+    'user',
+    'root',
+]);
+
 export const users = pgTable(
     'users',
     {
         id: varchar('id', {
             length: 255,
         }).primaryKey(),
+        username: varchar('username', {
+            length: 255,
+        }).notNull(),
+        fullname: varchar('fullname', {
+            length: 255,
+        }).notNull(),
+        normalizedUsername: varchar('normalized_username', {
+            length: 255,
+        }).notNull(),
         email: varchar('email', {
             length: 255,
-        }).notNull(),
-        normalizedEmail: varchar('normalized_email', {
-            length: 255,
-        }).notNull(),
+        }),
         emailVerified: boolean('email_verified').default(false),
+        phoneNumber: varchar('phone_number', {
+            length: 255,
+        }),
+        phoneNumberVerified: boolean('phone_number_verified').default(false),
+        address: varchar('address', {
+            length: 255,
+        }),
+        status: userStatusEnum('status').default('pending').notNull(),
+        role: roles('role').default('user').notNull(),
         agreedToTerms: boolean('agreed_to_terms').default(false),
         hashedPassword: varchar('hashed_password').default('').notNull(),
     },
     table => {
         return {
-            normalizedEmailIdx: uniqueIndex('normalized_email_idx').on(table.normalizedEmail),
+            normalizedUsernameIdx: uniqueIndex('normalized_username_idx').on(
+                table.normalizedUsername
+            ),
         };
     }
 );
@@ -49,14 +82,20 @@ export const emailVerificationCodes = pgTable('email_verification_codes', {
 
 export const sessions = pgTable('sessions', {
     id: text('id').primaryKey(),
+    userId: varchar('user_id')
+        .notNull()
+        .references(() => users.id),
     expiresAt: timestamp('expires_at', {
         withTimezone: true,
         mode: 'date',
     }).notNull(),
-
-    userId: varchar('user_id')
-        .notNull()
-        .references(() => users.id),
+    createdAt: timestamp('created_at', {
+        withTimezone: true,
+        mode: 'date',
+    })
+        .defaultNow()
+        .notNull(),
+    fresh: boolean('fresh').default(true).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
