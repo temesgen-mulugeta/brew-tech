@@ -153,7 +153,7 @@ const data = {
 export function AppSidebar({
     user,
     ...props
-}: React.ComponentProps<typeof Sidebar> & { user: { email: string } }) {
+}: React.ComponentProps<typeof Sidebar> & { user: { username: string } }) {
     return (
         <Sidebar collapsible='icon' {...props}>
             <SidebarHeader>
@@ -166,8 +166,8 @@ export function AppSidebar({
             <SidebarFooter>
                 <NavUser
                     user={{
-                        name: user.email.split('@')[0]!,
-                        email: user.email,
+                        name: user.username,
+                        email: user.username,
                         avatar: '',
                     }}
                 />

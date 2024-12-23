@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { cache } from 'react';
-import { auth } from '../auth';
+import { auth } from './auth';
 
 const SESSION_COOKIE_NAME = 'auth_session';
 

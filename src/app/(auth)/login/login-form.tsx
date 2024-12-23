@@ -1,21 +1,16 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
+import FormPasswordField from '@/components/common/form-field/form-password-field';
+import FormTextField from '@/components/common/form-field/form-text-field';
 import { Button } from '@/components/ui/button';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { PasswordInput } from '@/components/ui/password-input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
 import { Routes } from '@/lib/routes';
 import { cn } from '@/lib/utils';
+import type { ApiErrorResponse } from '@/models/common';
 import { type Login, loginSchema } from '@/schemas/auth';
 import { client } from '@/server/client';
-import { ErrorMessage } from '@hookform/error-message';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
@@ -23,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-export function LoginForm() {
+export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
     const router = useRouter();
     const { mutate, isPending } = useMutation<unknown, Error, Login, unknown>({
         mutationKey: ['login'],
@@ -31,16 +26,17 @@ export function LoginForm() {
             const response = await client.api.auth.login.$post({
                 json,
             });
-
             if (!response.ok) {
-                throw new Error(response.statusText);
+                const error = await response.json() as ApiErrorResponse;
+                throw new Error(error.message);
             }
+            return response;
         },
         onSuccess: async () => {
             router.push(Routes.dashboard());
         },
-        onError: () => {
-            toast.error('Login failed.');
+        onError: error => {
+            toast.error(error.message);
         },
     });
 
@@ -54,69 +50,55 @@ export function LoginForm() {
     });
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(values => mutate(values))} className='space-y-4'>
-                <FormField
-                    control={form.control}
-                    name='username'
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input
-                                    autoComplete='username'
-                                    placeholder='root'
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name='password'
-                    render={({ field }) => (
-                        <FormItem>
-                            <div className='space-y-2 leading-none'>
-                                <div className='space-y-1'>
-                                    <FormLabel>Password</FormLabel>
+        <div className={cn('flex flex-col gap-6', className)} {...props}>
+            <Card className='overflow-hidden'>
+                <CardContent className='grid p-0 md:grid-cols-2'>
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(values => mutate(values))}
+                            className='p-6 md:p-8'>
+                            <div className='flex flex-col gap-6 py-10'>
+                                <div className='flex flex-col items-center text-center'>
+                                    <h1 className='text-2xl font-bold'>Welcome back</h1>
+                                    <p className='text-balance text-muted-foreground'>
+                                        Login to your account
+                                    </p>
                                 </div>
-                                <FormControl>
-                                    <PasswordInput
-                                        placeholder='Your password'
-                                        autoComplete='current-password'
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <ErrorMessage
-                                    errors={form.formState.errors}
-                                    name={field.name}
-                                    render={({ messages }) =>
-                                        messages &&
-                                        Object.entries(messages).map(([type, message]) => (
-                                            <p
-                                                className='text-sm font-medium text-destructive'
-                                                key={type}>
-                                                {message}
-                                            </p>
-                                        ))
-                                    }
+
+                                <FormTextField
+                                    control={form.control}
+                                    name='username'
+                                    formLabel='User Name'
+                                    form={form}
+                                    placeholder='jon_doe'
                                 />
+                                <FormPasswordField
+                                    control={form.control}
+                                    name='password'
+                                    formLabel='Password'
+                                    form={form}
+                                />
+
+                                <Button type='submit' className='w-full' disabled={isPending}>
+                                    {isPending && <Loader2 className='mr-2 size-4 animate-spin' />}
+                                    Login
+                                </Button>
                             </div>
-                        </FormItem>
-                    )}
-                />
-                <Button type='submit' disabled={isPending}>
-                    <Loader2
-                        className={cn('mr-2 size-4 animate-spin', {
-                            [`inline`]: isPending,
-                            [`hidden`]: !isPending,
-                        })}
-                    />
-                    Login
-                </Button>
-            </form>
-        </Form>
+                        </form>
+                    </Form>
+                    <div className='relative hidden bg-muted md:block'>
+                        <img
+                            src='/placeholder.svg'
+                            alt='Image'
+                            className='absolute inset-0 size-full object-cover dark:brightness-[0.2] dark:grayscale'
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+            <div className='text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary'>
+                By clicking continue, you agree to our <a href='#'>Terms of Service</a> and{' '}
+                <a href='#'>Privacy Policy</a>.
+            </div>
+        </div>
     );
 }

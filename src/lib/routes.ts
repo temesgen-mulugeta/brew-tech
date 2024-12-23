@@ -5,7 +5,7 @@ import { z } from 'zod';
 export const Routes = {
     home: makeRoute(() => '/'),
     dashboard: makeRoute(() => '/dashboard'),
-
+    
     scalar: makeRoute(() => '/scalar'),
 
     terms: makeRoute(() => '/terms'),

@@ -46,7 +46,7 @@ app.use(async (c, next) => {
 
 app.doc31('/api/swagger.json', {
     openapi: '3.1.0',
-    info: { title: 'Hono x Lucia', version: '1.0.0' },
+    info: { title: 'Brew Tech', version: '1.0.0' },
 });
 
 app.get(

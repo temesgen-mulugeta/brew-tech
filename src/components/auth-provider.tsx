@@ -1,6 +1,6 @@
 'use client';
 
-import type { User } from 'lucia';
+import type { User } from '@/server/types';
 import { createContext, type ReactNode, useContext } from 'react';
 
 export interface AuthContextValue {

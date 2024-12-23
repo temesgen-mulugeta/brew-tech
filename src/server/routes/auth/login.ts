@@ -1,5 +1,6 @@
 import { Routes } from '@/lib/routes';
 import { verifyHash } from '@/lib/utils.server';
+import type { ApiErrorResponse } from '@/models/common';
 import { loginSchema } from '@/schemas/auth';
 import type { ContextVariables } from '@/server/types';
 import { auth } from '@/services/auth';
@@ -42,20 +43,24 @@ export const login = new OpenAPIHono<{ Variables: ContextVariables }>().openapi(
         const existingUser = await db.query.users.findFirst({
             where: and(
                 eq(users.normalizedUsername, normalizedUsername),
-                eq(users.emailVerified, true)
+                eq(users.status, 'active')
             ),
         });
 
         if (!existingUser) {
             throw new HTTPException(400, {
-                message: 'Authentication failed.',
+                res: c.json<ApiErrorResponse>({
+                    message: 'Authentication failed. Invalid username or password.',
+                }),
             });
         }
 
         const validPassword = await verifyHash(existingUser.hashedPassword, password);
         if (!validPassword) {
             throw new HTTPException(400, {
-                message: 'Authentication failed.',
+                res: c.json<ApiErrorResponse>({
+                    message: 'Authentication failed. Invalid username or password.',
+                }),
             });
         }
 
