@@ -1,4 +1,7 @@
+import { users } from '@/services/db/schema';
 import { z } from 'zod';
+import { createInsertSchema } from 'drizzle-zod';
+
 
 export const sendRegistrationCodeSchema = z.object({
     agree: z.boolean(),
@@ -24,19 +27,3 @@ export const loginSchema = z.object({
 });
 
 export type Login = z.infer<typeof loginSchema>;
-
-export const createUserSchema = z.object({
-    username: z.string(),
-    fullname: z.string(),
-    email: z.string().email().optional(),
-    phoneNumber: z.string().optional(),
-    address: z.string().optional(),
-    password: z
-        .string()
-        .min(8, { message: 'Password must be at least 8 characters.' })
-        .max(64, { message: 'Password must be at most 64 characters.' }),
-    role: z.enum(['user', 'root']).default('user'),
-    status: z.enum(['active', 'inactive', 'pending']).default('active'),
-});
-
-export type CreateUser = z.infer<typeof createUserSchema>;

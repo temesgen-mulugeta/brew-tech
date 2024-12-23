@@ -20,7 +20,7 @@ import {
 import { PasswordInput } from '@/components/ui/password-input';
 import { Routes } from '@/lib/routes';
 import { cn } from '@/lib/utils';
-import { type Verify, verifySchema } from '@/schemas/auth';
+import { type Verify, verifySchema } from '@/schemas/core/auth';
 import { client } from '@/server/client';
 import { ErrorMessage } from '@hookform/error-message';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -54,7 +54,7 @@ export function VerificationForm({ username }: { username: string }) {
             }
         },
         onSuccess: () => {
-            router.push(Routes.dashboard());
+            router.push(Routes.home());
         },
         onError: () => {
             toast.error('Registration failed. Please try again.');

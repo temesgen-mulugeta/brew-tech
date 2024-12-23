@@ -1,19 +1,18 @@
 import { generateId } from '@/lib/utils';
 import { hashPassword } from '@/lib/utils.server';
 import type { ApiErrorResponse } from '@/models/common';
-import { createUserSchema } from '@/schemas/auth';
+import { createUserSchema } from '@/schemas/core/user';
 import type { ContextVariables } from '@/server/types';
 import { users } from '@/services/db/schema';
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 
-
 export const createUser = new OpenAPIHono<{ Variables: ContextVariables }>().openapi(
     createRoute({
         method: 'post',
-        path: '/api/auth/create-user',
-        tags: ['Auth'],
+        path: '/api/users/create-user',
+        tags: ['Users'],
         summary: 'Create new user',
         request: {
             body: {
@@ -73,7 +72,6 @@ export const createUser = new OpenAPIHono<{ Variables: ContextVariables }>().ope
             });
         }
 
-        // Create new user
         const hashedPassword = await hashPassword(userData.password);
         const newUser = await db.insert(users).values({
             id: generateId(),
@@ -86,11 +84,12 @@ export const createUser = new OpenAPIHono<{ Variables: ContextVariables }>().ope
             hashedPassword,
             role: userData.role,
             status: userData.status,
-            agreedToTerms: true, // Since this is admin creating the user
+            agreedToTerms: true,
         });
 
         return c.json({
             message: 'User created successfully',
+            user: newUser,
         });
     }
 );

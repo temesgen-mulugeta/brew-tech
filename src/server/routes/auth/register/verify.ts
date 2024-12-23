@@ -1,5 +1,5 @@
 import { hashPassword } from '@/lib/utils.server';
-import { verifySchema } from '@/schemas/auth';
+import { verifySchema } from '@/schemas/core/auth';
 import type { ContextVariables } from '@/server/types';
 import { auth } from '@/services/auth';
 import { emailVerificationCodes, users } from '@/services/db/schema';

@@ -1,45 +1,20 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
+import useAuthActions from '@/api-client/auth/use-auth-actions';
 import FormPasswordField from '@/components/common/form-field/form-password-field';
 import FormTextField from '@/components/common/form-field/form-text-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { Routes } from '@/lib/routes';
 import { cn } from '@/lib/utils';
-import type { ApiErrorResponse } from '@/models/common';
-import { type Login, loginSchema } from '@/schemas/auth';
-import { client } from '@/server/client';
+import { type Login, loginSchema } from '@/schemas/core/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
-    const router = useRouter();
-    const { mutate, isPending } = useMutation<unknown, Error, Login, unknown>({
-        mutationKey: ['login'],
-        mutationFn: async json => {
-            const response = await client.api.auth.login.$post({
-                json,
-            });
-            if (!response.ok) {
-                const error = await response.json() as ApiErrorResponse;
-                throw new Error(error.message);
-            }
-            return response;
-        },
-        onSuccess: async () => {
-            router.push(Routes.dashboard());
-        },
-        onError: error => {
-            toast.error(error.message);
-        },
-    });
-
+    const { login } = useAuthActions();
     const form = useForm<Login>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -55,7 +30,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 <CardContent className='grid p-0 md:grid-cols-2'>
                     <Form {...form}>
                         <form
-                            onSubmit={form.handleSubmit(values => mutate(values))}
+                            onSubmit={form.handleSubmit(values => login.mutate(values))}
                             className='p-6 md:p-8'>
                             <div className='flex flex-col gap-6 py-10'>
                                 <div className='flex flex-col items-center text-center'>
@@ -79,8 +54,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                                     form={form}
                                 />
 
-                                <Button type='submit' className='w-full' disabled={isPending}>
-                                    {isPending && <Loader2 className='mr-2 size-4 animate-spin' />}
+                                <Button type='submit' className='w-full' disabled={login.isPending}>
+                                    {login.isPending && (
+                                        <Loader2 className='mr-2 size-4 animate-spin' />
+                                    )}
                                     Login
                                 </Button>
                             </div>

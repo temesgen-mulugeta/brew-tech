@@ -4,6 +4,7 @@ import { getCookie, setCookie } from 'hono/cookie';
 
 import { authApp } from '@/server/routes/auth';
 import { secretApp } from '@/server/routes/secret';
+import { usersApp } from '@/server/routes/users';
 import type { ContextVariables } from '@/server/types';
 import { auth } from '@/services/auth';
 import { db } from '@/services/db';
@@ -58,7 +59,7 @@ app.get(
     })
 );
 
-const routes = app.route('/', authApp).route('/', secretApp);
+const routes = app.route('/', authApp).route('/', secretApp).route('/', usersApp);
 
 export type AppType = typeof routes;
 

@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Routes } from '@/lib/routes';
 import { cn } from '@/lib/utils';
-import { type SendRegistrationCode, sendRegistrationCodeSchema } from '@/schemas/auth';
+import { type SendRegistrationCode, sendRegistrationCodeSchema } from '@/schemas/core/auth';
 import { client } from '@/server/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';

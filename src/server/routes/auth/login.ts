@@ -1,7 +1,7 @@
 import { Routes } from '@/lib/routes';
 import { verifyHash } from '@/lib/utils.server';
 import type { ApiErrorResponse } from '@/models/common';
-import { loginSchema } from '@/schemas/auth';
+import { loginSchema } from '@/schemas/core/auth';
 import type { ContextVariables } from '@/server/types';
 import { auth } from '@/services/auth';
 import { users } from '@/services/db/schema';
